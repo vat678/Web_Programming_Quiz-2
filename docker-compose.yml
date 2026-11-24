@@ -1,0 +1,35 @@
+# Menjalankan MySQL + MoneyTrack sekaligus untuk uji coba lokal:
+#   docker compose up --build
+# lalu buka http://localhost:8080
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: moneytrack
+      MYSQL_ROOT_PASSWORD: rahasia
+      TZ: Asia/Jakarta
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - dbdata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-prahasia"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:mysql://db:3306/moneytrack?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Jakarta&characterEncoding=UTF-8
+      DB_USER: root
+      DB_PASS: rahasia
+      ADMIN_EMAIL: admin@moneytrack.local
+      ADMIN_PASS: admin12345
+    ports:
+      - "8080:8080"
+
+volumes:
+  dbdata:
