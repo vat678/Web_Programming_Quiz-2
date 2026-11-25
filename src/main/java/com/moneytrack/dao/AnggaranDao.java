@@ -20,8 +20,7 @@ public class AnggaranDao {
             "SELECT a.id, a.user_id, a.kategori_id, a.jumlah_anggaran, a.bulan, a.tahun, k.nama AS kategori_nama, "
           + "COALESCE((SELECT SUM(t.nominal) FROM transaksi t "
           + "          WHERE t.user_id = a.user_id AND t.kategori_id = a.kategori_id AND t.jenis = 'pengeluaran' "
-          + "            AND t.tanggal >= MAKEDATE(a.tahun, 1) + INTERVAL (a.bulan - 1) MONTH "
-          + "            AND t.tanggal <  MAKEDATE(a.tahun, 1) + INTERVAL a.bulan MONTH), 0) AS terpakai "
+          + "            AND YEAR(t.tanggal) = a.tahun AND MONTH(t.tanggal) = a.bulan), 0) AS terpakai "
           + "FROM anggaran a JOIN kategori k ON k.id = a.kategori_id ";
 
     private static Anggaran map(ResultSet rs) throws SQLException {
